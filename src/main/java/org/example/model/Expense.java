@@ -1,7 +1,11 @@
 package org.example.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Expense {
     private int id;
@@ -16,14 +20,6 @@ public class Expense {
         this.description = "";
         this.amount = null;
         this.category = null;
-    }
-
-    public Expense(int id, LocalDateTime date, String description, BigDecimal amount, ExpenseCategory category) {
-        this.id = id;
-        this.date = date;
-        this.description = description;
-        this.amount = amount;
-        this.category = category;
     }
 
     public int getId() {
@@ -55,7 +51,7 @@ public class Expense {
     }
 
     public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+        this.amount = amount.setScale(2, RoundingMode.HALF_UP);
     }
 
     public ExpenseCategory getCategory() {
@@ -66,8 +62,14 @@ public class Expense {
         this.category = category;
     }
 
+    @JsonIgnore
+    public String[] getExpenseStringArr(){
+        return this.toString().split(",");
+    }
+
     @Override
     public String toString(){
-        return String.format("%s\t%s\t%s\t$%s\t%s", id, description, date, amount, category);
+        return String.format("%s,%s,%s,%s,%s", id, date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                description, amount, category);
     }
 }
